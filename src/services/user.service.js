@@ -1,4 +1,4 @@
-const prisma = require('../config/database');
+const { prisma } = require('../config/database');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
 
