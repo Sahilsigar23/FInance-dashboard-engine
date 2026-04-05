@@ -20,9 +20,16 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
-          ? 'https://api.finsight.com/api/v1' 
+          ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'finance-dashboard-engine.onrender.com'}/api/v1`
           : `http://localhost:${process.env.PORT || 3000}/api/v1`,
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
+        description: process.env.NODE_ENV === 'production' ? 'Production server (Render)' : 'Development server'
+      },
+      // Also include the base URL without /api/v1 for health checks
+      {
+        url: process.env.NODE_ENV === 'production' 
+          ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'finance-dashboard-engine.onrender.com'}`
+          : `http://localhost:${process.env.PORT || 3000}`,
+        description: process.env.NODE_ENV === 'production' ? 'Base production server' : 'Base development server'
       }
     ],
     components: {

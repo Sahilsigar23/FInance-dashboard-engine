@@ -35,16 +35,57 @@ app.use(helmet({
   }
 }));
 
-// CORS configuration
+// CORS configuration with production support
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000', 'http://localhost:3001'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5000',
+      'https://localhost:3000',
+      'https://localhost:3001'
+    ];
+    
+    // In production, allow same-origin requests (Swagger UI from same domain)
+    if (process.env.NODE_ENV === 'production') {
+      // Allow requests from the same domain (for Swagger UI)
+      const requestOrigin = origin || '';
+      const isRenderDomain = requestOrigin.includes('.onrender.com');
+      const isSameOrigin = true; // Always allow same-origin in production
+      
+      if (isRenderDomain || isSameOrigin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+    } else {
+      // Development: be more permissive
+      if (allowedOrigins.includes(origin) || origin.includes('localhost')) {
+        return callback(null, true);
+      }
+    }
+    
+    callback(new Error(`CORS policy violation: Origin ${origin} not allowed`));
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
   credentials: true,
+  optionsSuccessStatus: 200, // For legacy browser support
   maxAge: 86400 // 24 hours
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ 
