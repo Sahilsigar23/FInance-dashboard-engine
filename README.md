@@ -447,10 +447,5 @@ MIT License - see LICENSE file for details
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📞 Support
 
-For support and questions:
-- Create an issue in the repository
-- Contact: support@finsight.com
-- Documentation: http://localhost:3000/api-docs
 
